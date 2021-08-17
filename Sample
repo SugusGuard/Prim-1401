@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+use LWP::Simple;
+use Math::BigInt;
+my $html = get("http://www.utm.edu/research/primes/curios/48565...29443.html");
+my($prime) = $html =~ m{<blockquote>([^<]+)</blockquote>};
+$prime =~ s{\D+}{};
+$prime = Math::BigInt->new($prime);
+my $binary = '';
+while ($prime > 0) {
+        $binary = pack("N", ($prime % 2**32)) . $binary;
+        $prime /= 2**32;
+}
+$binary =~ s{^\0+}{};
+open(my $fh, "| gunzip -c 2>/dev/null") or die "cannot gunzip, $!";
+print $fh $binary;
+close $fh;
